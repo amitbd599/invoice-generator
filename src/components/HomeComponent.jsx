@@ -9,35 +9,33 @@ const HomeComponent = () => {
     setSelectedImage(imageId);
   };
 
-  const addInvoiceItem = () => {
-    setInvoiceItems([
-      ...invoiceItems,
-      { item: "", quantity: 0, rate: 0, amount: 0 },
-    ]);
+  const handleAddItem = () => {
+    setInvoiceItems([...invoiceItems, { item: "", quantity: 0, rate: 0 }]);
   };
-  const deleteInvoiceItem = (index) => {
+
+  const handleDeleteItem = (index) => {
     const updatedItems = [...invoiceItems];
     updatedItems.splice(index, 1);
     setInvoiceItems(updatedItems);
   };
 
-  const handleInputChange = (index, field, value) => {
+  const handleItemChange = (index, field, value) => {
     const updatedItems = [...invoiceItems];
     updatedItems[index][field] = value;
     setInvoiceItems(updatedItems);
   };
 
   const calculateSubtotal = () => {
-    return invoiceItems.reduce((total, item) => total + item.amount, 0);
+    return invoiceItems.reduce(
+      (total, item) => total + item.quantity * item.rate,
+      0
+    );
   };
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const discountedTotal = subtotal - discount;
-    return discountedTotal >= 0 ? discountedTotal : 0;
+    return subtotal - discount;
   };
-
-  console.log(invoiceItems);
 
   const images = [
     { id: 1, src: "image1.jpg" },
@@ -105,73 +103,69 @@ const HomeComponent = () => {
             </div>
             <br />
             <h4>Invoice items:</h4>
+
+            <button onClick={handleAddItem}>Add Item</button>
             {invoiceItems.map((item, index) => (
-              <div key={index}>
-                <label htmlFor={`item${index}`}>Item:</label>
-                <input
-                  type="text"
-                  id={`item${index}`}
-                  value={item.item}
-                  onChange={(e) =>
-                    handleInputChange(index, "item", e.target.value)
-                  }
-                />
-
-                <label htmlFor={`quantity${index}`}>Quantity:</label>
-                <input
-                  type="text"
-                  id={`quantity${index}`}
-                  value={item.quantity}
-                  onChange={(e) =>
-                    handleInputChange(index, "quantity", e.target.value)
-                  }
-                />
-
-                <label htmlFor={`rate${index}`}>Rate:</label>
-                <input
-                  type="text"
-                  id={`rate${index}`}
-                  value={item.rate}
-                  onChange={(e) =>
-                    handleInputChange(index, "rate", e.target.value)
-                  }
-                />
-
-                <label htmlFor={`amount${index}`}>Amount:</label>
-                <input
-                  type="text"
-                  id={`amount${index}`}
-                  value={item.amount}
-                  onChange={(e) =>
-                    handleInputChange(index, "amount", e.target.value)
-                  }
-                />
-
-                <button onClick={() => deleteInvoiceItem(index)}>
-                  Delete Item
-                </button>
-
-                <hr />
+              <div key={index} className="invoice_items">
+                <div className="group">
+                  <input
+                    type="text"
+                    value={item.item}
+                    placeholder="Item"
+                    onChange={(e) =>
+                      handleItemChange(index, "item", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="group">
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    placeholder="Quantity"
+                    onChange={(e) =>
+                      handleItemChange(
+                        index,
+                        "quantity",
+                        parseInt(e.target.value, 10)
+                      )
+                    }
+                  />
+                </div>
+                <div className="group">
+                  <input
+                    type="number"
+                    value={item.rate}
+                    placeholder="Rate"
+                    onChange={(e) =>
+                      handleItemChange(
+                        index,
+                        "rate",
+                        parseFloat(e.target.value)
+                      )
+                    }
+                  />
+                </div>
+                <div className="group ">
+                  <span>{item.quantity * item.rate}</span>
+                  <button onClick={() => handleDeleteItem(index)}>
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
 
-            <button onClick={addInvoiceItem}>Add Invoice Item</button>
-
             <div>
-              <label htmlFor="discount">Discount:</label>
-              <input
-                type="text"
-                id="discount"
-                value={discount}
-                onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-              />
+              <p>Subtotal: {calculateSubtotal()}</p>
+              <label>
+                Discount:
+                <input
+                  type="number"
+                  value={discount}
+                  onChange={(e) => setDiscount(parseFloat(e.target.value))}
+                />
+              </label>
             </div>
-
-            <div>
-              <p>Subtotal: ${calculateSubtotal()}</p>
-              <p>Discount: ${discount}</p>
-              <p>Total: ${calculateTotal()}</p>
-            </div>
+            <p>Total: {calculateTotal()}</p>
           </div>
         </div>
         <div className="col-md-3">
